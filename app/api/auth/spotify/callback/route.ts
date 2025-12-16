@@ -45,7 +45,9 @@ export async function GET(req: Request) {
   const tokenData = await tokenRes.json();
 
   // 2️⃣ 构造 redirect response
-  const res = NextResponse.redirect(new URL("/", req.url));
+  const res = NextResponse.redirect(
+    `${process.env.APP_BASE_URL}/`
+  );
 
   // 3️⃣ 写 cookie（🔥关键）
   res.cookies.set("spotify_access_token", tokenData.access_token, {

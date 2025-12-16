@@ -1,22 +1,18 @@
 import { NextResponse } from "next/server";
 
-console.log("SPOTIFY LOGIN ROUTE HIT");
-
-export const runtime = "nodejs";
-
-export async function GET() {
-  const clientId = process.env.SPOTIFY_CLIENT_ID!;
-  const redirectUri = process.env.SPOTIFY_REDIRECT_URI!;
-  const scopes = process.env.SPOTIFY_SCOPES!;
+export async function GET(request: Request) {
+  const { origin } = new URL(request.url);
+  // origin 会自动是：
+  // http://127.0.0.1:3000 或 http://localhost:3000
 
   const params = new URLSearchParams({
-    client_id: clientId,
+    client_id: process.env.SPOTIFY_CLIENT_ID!,
     response_type: "code",
-    redirect_uri: redirectUri,
-    scope: scopes,
+    redirect_uri: process.env.SPOTIFY_REDIRECT_URI!, // 这里你已统一成 127
+    scope: process.env.SPOTIFY_SCOPES!,
   });
 
-  const url = `https://accounts.spotify.com/authorize?${params.toString()}`;
+  const authUrl = `https://accounts.spotify.com/authorize?${params.toString()}`;
 
-  return NextResponse.redirect(url);
+  return NextResponse.redirect(authUrl);
 }
