@@ -48,11 +48,11 @@ export default function AppShell({
   };
 
   return (
-    <div className="flex min-h-screen w-full">
+    <div className="flex h-screen w-full overflow-hidden">
       {/* 左侧 Sidebar */}
       <div
         style={{ width: sidebarWidth }}
-        className="bg-black/40 border-r border-white/10"
+        className="bg-black/40 border-r border-white/10 h-full overflow-y-auto"
       >
         <Sidebar />
       </div>
@@ -70,7 +70,7 @@ export default function AppShell({
       />
 
       {/* 右侧主内容 */}
-      <main className="flex-1 bg-gradient-to-br from-[#0f172a] to-[#1e1b4b] overflow-x-hidden">
+      <main className="flex-1 bg-gradient-to-br from-[#0f172a] to-[#1e1b4b] h-full overflow-y-auto overflow-x-hidden">
         {children}
       </main>
     </div>
