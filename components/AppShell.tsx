@@ -70,7 +70,12 @@ export default function AppShell({
       />
 
       {/* 右侧主内容 */}
-      <main className="flex-1 bg-gradient-to-br from-[#0f172a] to-[#1e1b4b] h-full overflow-y-auto overflow-x-hidden">
+      <main className="flex-1 
+        bg-gradient-to-br from-[#0f172a] to-[#1e1b4b] 
+        h-full 
+        overflow-y-auto 
+        overflow-x-hidden
+        scrollbar-hide">
         {children}
       </main>
     </div>

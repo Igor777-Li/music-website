@@ -1,6 +1,8 @@
 "use client";
 
 import { usePlayerContext } from "@/contexts/PlayerContext";
+import AddToPlaylistButton from "@/components/AddToPlaylistButton";
+
 
 const localSongs = [
   {
@@ -30,7 +32,7 @@ export default function LocalSection() {
 
   return (
     <section className="mt-12">
-      <h2 className="text-xl font-semibold mb-4">My Local Music</h2>
+      <h2 className="text-xl font-semibold mb-4">Local Music</h2>
 
       <div className="rounded-lg border border-white/10 bg-white/5 p-4 space-y-3">
         {visibleSongs.length === 0 && (
@@ -49,36 +51,55 @@ export default function LocalSection() {
             key={song.id}
             className="
               flex items-center justify-between
-              rounded-md bg-white/5 hover:bg-white/10
-              px-4 py-3 transition
+              px-3 py-2
+              rounded
+              hover:bg-white/5
+              transition
             "
           >
-            {/* 左侧：信息 */}
-            <div>
-              <div className="text-sm font-medium">{song.title}</div>
-              <div className="text-xs text-white/50">{song.artist}</div>
+            {/* 左侧：+ 按钮 + 歌曲信息 */}
+            <div className="flex items-center gap-3 min-w-0">
+              <AddToPlaylistButton
+                song={{
+                  id: song.id,
+                  title: song.title,
+                  artist: song.artist,
+                  previewUrl: song.src,
+                }}
+              />
+
+              <div className="min-w-0">
+                <div className="text-sm font-medium truncate">
+                  {song.title}
+                </div>
+                <div className="text-xs text-white/50 truncate">
+                  {song.artist}
+                </div>
+              </div>
             </div>
 
-            {/* 右侧：播放按钮 */}
+            {/* 右侧：Play */}
             <button
               onClick={() =>
                 player.play({
                   id: song.id,
                   title: song.title,
                   artist: song.artist,
-                  previewUrl: song.src, // 👈 本地音频
+                  previewUrl: song.src,
                 })
               }
               className="
                 text-xs px-3 py-1
                 rounded bg-indigo-500 hover:bg-indigo-400
                 text-black
+                flex-shrink-0
               "
             >
               ▶ Play
             </button>
           </div>
         ))}
+
       </div>
     </section>
   );
