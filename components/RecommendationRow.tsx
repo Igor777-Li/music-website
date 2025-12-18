@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { usePlayerContext } from "@/contexts/PlayerContext";
-import { usePlaylists } from "@/contexts/PlaylistContext";
-import { useToast } from "@/contexts/ToastContext";
+import AddToPlaylistButton from "@/components/AddToPlaylistButton";
+
 
 type Props = {
   title: string;
@@ -16,8 +16,6 @@ export default function RecommendationRow({ title, keyword }: Props) {
 
   const rowRef = useRef<HTMLDivElement>(null);
   const player = usePlayerContext();
-  const { addSongToPlaylist, playlists } = usePlaylists();
-  const { showToast } = useToast();
   const [showPicker, setShowPicker] = useState(false);
   const [selectedTrack, setSelectedTrack] = useState<any>(null);
 
@@ -100,29 +98,21 @@ export default function RecommendationRow({ title, keyword }: Props) {
                     bg-white/5 hover:bg-white/10
                     border border-white/10
                     rounded-xl
-                    p-3
+                    p-3 pt-2
                     transition
                   "
                 >
-                  {/* Add to Playlist 按钮 */}
-                  <button
-                    onClick={() => {
-                      setSelectedTrack(track);
-                      setShowPicker(true);
+            
+                  <AddToPlaylistButton
+                    song={{
+                      id: track.id,
+                      title: track.name,
+                      artist: track.artists
+                        ?.map((a: any) => a.name)
+                        .join(", ") ?? "Unknown",
+                      previewUrl: track.preview_url,
                     }}
-                    className="
-                      absolute top-2 right-2
-                      w-6 h-6
-                      rounded-full
-                      bg-black/60 hover:bg-black
-                      text-white text-sm
-                      flex items-center justify-center
-                    "
-                    title="Add to playlist"
-                  >
-                    +
-                  </button>
-
+                  />
 
                   {/* 封面 */}
                   <div className="aspect-square rounded-lg bg-indigo-500/30 mb-3 flex items-center justify-center text-2xl">
@@ -179,60 +169,6 @@ export default function RecommendationRow({ title, keyword }: Props) {
           ▶
         </button>
       </div>
-
-      {showPicker && selectedTrack && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
-          <div className="bg-[#0f172a] rounded-xl p-6 w-80 border border-white/10">
-            <h3 className="text-lg font-semibold mb-4">
-              Add to playlist
-            </h3>
-
-            <div className="space-y-2 max-h-60 overflow-y-auto">
-              {playlists.map((playlist) => (
-                <button
-                  key={playlist.name}
-                  onClick={() => {
-                    addSongToPlaylist(playlist.name, {
-                      id: selectedTrack.id,
-                      title: selectedTrack.name,
-                      artist:
-                        selectedTrack.artists
-                          ?.map((a: any) => a.name)
-                          .join(", ") ?? "Unknown",
-                      previewUrl: selectedTrack.preview_url,
-                    });
-
-                    showToast(
-                      `Added "${selectedTrack.name}" to ${playlist.name}`
-                    );
-
-                    setShowPicker(false);
-                    setSelectedTrack(null);
-                  }}
-                  className="
-                    w-full text-left
-                    px-3 py-2 rounded
-                    hover:bg-white/10
-                    transition
-                  "
-                >
-                  {playlist.name}
-                </button>
-              ))}
-            </div>
-
-            <button
-              onClick={() => {
-                setShowPicker(false);
-                setSelectedTrack(null);
-              }}
-              className="mt-4 text-sm text-white/50 hover:text-white"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
 
     </section>
 

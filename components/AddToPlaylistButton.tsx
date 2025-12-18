@@ -45,6 +45,24 @@ export default function AddToPlaylistButton({
               Add to playlist
             </h3>
 
+            <button
+              onClick={() => setOpen(false)}
+              aria-label="Close"
+              className="
+                absolute top-3 right-3
+                w-7 h-7
+                rounded-full
+                flex items-center justify-center
+                text-white/60
+                hover:text-white
+                hover:bg-white/10
+                transition
+              "
+            >
+              ×
+            </button>
+
+
             <div className="space-y-2 max-h-60 overflow-y-auto">
               {playlists.map((playlist) => (
                 <button
@@ -69,7 +87,18 @@ export default function AddToPlaylistButton({
 
             <button
               onClick={() => setOpen(false)}
-              className="mt-4 text-sm text-white/50 hover:text-white"
+              className="mt-4
+                mt-6
+                inline-flex items-center justify-center
+                px-4 py-2
+                text-sm
+                rounded-md
+                border border-white/30
+                bg-white/5
+                text-white/80
+                hover:bg-white/15
+                hover:text-white
+                transition"
             >
               Cancel
             </button>
