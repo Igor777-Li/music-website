@@ -63,7 +63,7 @@ export default function Navbar() {
         <div className="flex items-center gap-4 text-sm">
           {!user ? (
             <a
-              href="/api/auth/spotify/login"
+              href="/auth/login"
               onClick={() => {
                 // 登录完成后刷新
                 setTimeout(() => {
