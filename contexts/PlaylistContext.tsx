@@ -21,6 +21,7 @@ type PlaylistContextType = {
   addSongToPlaylist: (playlistName: string, songId: Song) => void;
   addPlaylist: (name: string) => void;
   removePlaylist: (name: string) => void;
+  removeSongFromPlaylist: (playlistName: string, songId: string) => void;
 };
 
 const PlaylistContext = createContext<PlaylistContextType | null>(null);
@@ -64,12 +65,26 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
     );
     };
 
+    const removeSongFromPlaylist = (playlistName: string, songId: string) => {
+    setPlaylists((prev) =>
+      prev.map((pl) =>
+        pl.name === playlistName
+          ? {
+              ...pl,
+              songs: pl.songs.filter((s) => s.id !== songId),
+            }
+          : pl
+      ) 
+    );
+  };
+
 
   return (
     <PlaylistContext.Provider value={{ playlists,
         addSongToPlaylist,
         addPlaylist,
-        removePlaylist, }}>
+        removePlaylist,
+        removeSongFromPlaylist }}>
       {children}
     </PlaylistContext.Provider>
   );

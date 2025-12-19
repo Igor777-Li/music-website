@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import Sidebar from "@/components/Sidebar";
+import QueuePanel from "@/components/QueuePanel";
+import { usePlayerContext } from "@/contexts/PlayerContext";
 
 const MIN_SIDEBAR_WIDTH = 200;
 const MAX_SIDEBAR_WIDTH = 420;
@@ -13,6 +15,7 @@ export default function AppShell({
 }) {
   const [sidebarWidth, setSidebarWidth] = useState(260);
   const isResizing = useRef(false);
+  const { showQueuePanel } = usePlayerContext();
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -69,15 +72,23 @@ export default function AppShell({
         "
       />
 
-      {/* 右侧主内容 */}
-      <main className="flex-1 
-        bg-gradient-to-br from-[#0f172a] to-[#1e1b4b] 
-        h-full 
-        overflow-y-auto 
-        overflow-x-hidden
-        scrollbar-hide">
+      {/* 中间主内容 */}
+      <main
+        className="
+          flex-1
+          bg-gradient-to-br from-[#0f172a] to-[#1e1b4b]
+          h-full
+          overflow-y-auto
+          overflow-x-hidden
+          scrollbar-hide
+        "
+      >
         {children}
       </main>
+
+      {/* 右侧 Queue（按按钮才显示） */}
+      {showQueuePanel && <QueuePanel />}
     </div>
+
   );
 }

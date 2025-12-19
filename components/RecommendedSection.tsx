@@ -64,7 +64,7 @@ export default function RecommendedSection() {
               <button
                 disabled={!hasPreview}
                 onClick={() =>
-                  player.play({
+                  player.playTrack({
                     id: track.id,
                     title: track.name,
                     artist: track.artists[0].name,

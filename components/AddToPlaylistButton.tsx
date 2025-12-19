@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { usePlaylists } from "@/contexts/PlaylistContext";
 import { useToast } from "@/contexts/ToastContext";
+import { usePlayerContext } from "@/contexts/PlayerContext";
 
 type Song = {
   id: string;
@@ -11,19 +12,16 @@ type Song = {
   previewUrl: string | null;
 };
 
-export default function AddToPlaylistButton({
-  song,
-}: {
-  song: Song;
-}) {
+export default function AddToPlaylistButton({ song }: { song: Song }) {
   const { playlists, addSongToPlaylist } = usePlaylists();
   const { showToast } = useToast();
+  const { addNextToQueue } = usePlayerContext();
 
   const [open, setOpen] = useState(false);
 
   return (
     <>
-      {/* + 按钮 */}
+      {/* + 按钮：只负责打开弹窗 */}
       <button
         onClick={() => setOpen(true)}
         className="
@@ -32,7 +30,7 @@ export default function AddToPlaylistButton({
           text-white text-sm
           flex items-center justify-center
         "
-        title="Add to playlist"
+        title="Add options"
       >
         +
       </button>
@@ -42,28 +40,33 @@ export default function AddToPlaylistButton({
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
           <div className="bg-[#0f172a] rounded-xl p-6 w-80 border border-white/10">
             <h3 className="text-lg font-semibold mb-4">
-              Add to playlist
+              Add to…
             </h3>
 
-            <button
-              onClick={() => setOpen(false)}
-              aria-label="Close"
-              className="
-                absolute top-3 right-3
-                w-7 h-7
-                rounded-full
-                flex items-center justify-center
-                text-white/60
-                hover:text-white
-                hover:bg-white/10
-                transition
-              "
-            >
-              ×
-            </button>
+            {/* 快速操作 */}
+            <div className="mb-4">
+              <button
+                onClick={() => {
+                  addNextToQueue(song);
+                  showToast(`"${song.title}" will play next`);
+                  setOpen(false);
+                }}
+                className="
+                  w-full flex items-center justify-between
+                  px-3 py-2 rounded
+                  hover:bg-white/10
+                "
+              >
+                <span>▶ Play next</span>
+              </button>
+            </div>
 
+            <div className="text-xs text-white/40 mb-2">
+              Add to playlist
+            </div>
 
-            <div className="space-y-2 max-h-60 overflow-y-auto">
+            {/* Playlist 列表 */}
+            <div className="space-y-2 max-h-48 overflow-y-auto">
               {playlists.map((playlist) => (
                 <button
                   key={playlist.name}
@@ -87,8 +90,9 @@ export default function AddToPlaylistButton({
 
             <button
               onClick={() => setOpen(false)}
-              className="mt-4
+              className="
                 mt-6
+                w-full
                 inline-flex items-center justify-center
                 px-4 py-2
                 text-sm
@@ -98,7 +102,8 @@ export default function AddToPlaylistButton({
                 text-white/80
                 hover:bg-white/15
                 hover:text-white
-                transition"
+                transition
+              "
             >
               Cancel
             </button>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { usePlayerContext } from "@/contexts/PlayerContext";
 
 export default function PlayerBar() {
@@ -10,6 +11,15 @@ export default function PlayerBar() {
     duration,
     toggle,
     seek,
+    queue,
+    currentIndex,
+    playTrack,
+    playMode,
+    setPlayMode,
+    removeFromQueue,
+    playNext,
+    playPrev,
+    
   } = usePlayerContext();
 
   const formatTime = (time: number) => {
@@ -17,6 +27,13 @@ export default function PlayerBar() {
     const s = Math.floor(time % 60);
     return `${m}:${s.toString().padStart(2, "0")}`;
   };
+  //const [showQueue, setShowQueue] = useState(false);
+  const { toggleQueuePanel } = usePlayerContext();
+
+  const togglePlayMode = () => {
+    setPlayMode((prev) => (prev === "list" ? "single" : "list"));
+  };
+
 
   return (
     <div className="fixed bottom-0 left-0 right-0 h-24 bg-[#0b1020]/95 backdrop-blur border-t border-white/10 flex flex-col px-6">
@@ -44,7 +61,10 @@ export default function PlayerBar() {
         </div>
 
         <div className="flex items-center space-x-6">
-          <button className="text-white/70 hover:text-white">⏮</button>
+          <button 
+            className="text-white/70 hover:text-white"
+            onClick={playPrev}
+            >⏮</button>
 
           <button
             onClick={toggle}
@@ -53,7 +73,43 @@ export default function PlayerBar() {
             {isPlaying ? "⏸" : "▶"}
           </button>
 
-          <button className="text-white/70 hover:text-white">⏭</button>
+          <button 
+            className="text-white/70 hover:text-white"
+            onClick={playNext}
+            >⏭</button>
+
+          <button
+            onClick={togglePlayMode}
+            className={`
+              w-10 h-10
+              flex items-center justify-center
+              rounded-lg
+              text-sm font-semibold
+              transition
+              border-2
+              ${
+                playMode === "single"
+                  ? "border-indigo-400 bg-indigo-500/20 text-indigo-400"
+                  : "border-white/20 text-white/70 hover:text-white hover:bg-white/10"
+              }
+            `}
+            title={playMode === "single" ? "Single loop" : "List loop"}
+          >
+            {playMode === "single" ? "1" : "L"}
+          </button>
+
+
+
+
+          <button
+            onClick={toggleQueuePanel}
+            className="text-white/70 hover:text-white"
+            title="Queue"
+          >
+            ☰
+          </button>
+
+
         </div>
 
         <div className="w-32 text-right text-xs text-white/60">
@@ -79,6 +135,7 @@ export default function PlayerBar() {
           {formatTime(duration)}
         </span>
       </div>
+
     </div>
   );
 }

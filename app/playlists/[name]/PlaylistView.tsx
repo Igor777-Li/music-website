@@ -1,19 +1,28 @@
 "use client";
 
+import { useState } from "react";
 import { usePlaylists } from "@/contexts/PlaylistContext";
 import { usePlayerContext } from "@/contexts/PlayerContext";
+import ConfirmDialog from "@/components/ConfirmDialog";
 
 export default function PlaylistView({
   playlistName,
 }: {
   playlistName: string;
 }) {
-  const { playlists } = usePlaylists();
+ const { playlists, removeSongFromPlaylist } = usePlaylists();
+  
   const player = usePlayerContext();
 
   const playlist = playlists.find(
     (p) => p.name === playlistName
   );
+
+  const [pendingDeleteSong, setPendingDeleteSong] = useState<{
+    songId: string;
+    songTitle: string;
+  } | null>(null);
+
 
   if (!playlist) {
     return (
@@ -22,6 +31,7 @@ export default function PlaylistView({
       </div>
     );
   }
+
 
   return (
     <div className="px-10 py-8">
@@ -45,6 +55,7 @@ export default function PlaylistView({
             <div
               key={`${song.id}-${index}`}
               className="
+                group
                 flex items-center justify-between
                 px-4 py-3 rounded
                 hover:bg-white/5
@@ -68,31 +79,78 @@ export default function PlaylistView({
               </div>
 
               {/* 右侧：播放按钮 */}
-              <button
-                disabled={!song.previewUrl}
-                onClick={() =>
-                  player.play({
-                    id: song.id,
-                    title: song.title,
-                    artist: song.artist,
-                    previewUrl: song.previewUrl,
-                  })
-                }
-                className={`
-                  text-xs px-3 py-1 rounded
-                  ${
-                    song.previewUrl
-                      ? "bg-indigo-500 hover:bg-indigo-400 text-black"
-                      : "bg-gray-600 text-white/40 cursor-not-allowed"
+              <div className="flex items-center gap-3">
+                {/* 删除 X */}
+                <button
+                  onClick={() =>
+                    setPendingDeleteSong({
+                      songId: song.id,
+                      songTitle: song.title,
+                    })
                   }
-                `}
-              >
-                ▶ Play
-              </button>
+                  className="
+                    hidden group-hover:flex
+                    items-center justify-center
+                    w-5 h-5
+                    rounded
+                    text-white/40
+                    hover:text-white
+                    hover:bg-white/20
+                  "
+                  title="Remove song"
+                >
+                  ×
+                </button>
+
+                {/* 播放按钮 */}
+                <button
+                  disabled={!song.previewUrl}
+                  onClick={() => {
+                    const tracks = playlist.songs.map((s) => ({
+                      id: s.id,
+                      title: s.title,
+                      artist: s.artist,
+                      previewUrl: s.previewUrl,
+                    }));
+
+                    player.playPlaylistAt(tracks, index, playlist.name);
+                  }}
+
+                  className={`
+                    text-xs px-3 py-1 rounded
+                    ${
+                      song.previewUrl
+                        ? "bg-indigo-500 hover:bg-indigo-400 text-black"
+                        : "bg-gray-600 text-white/40 cursor-not-allowed"
+                    }
+                  `}
+                >
+                  ▶ Play
+                </button>
+              </div>
+
             </div>
           ))}
         </div>
       )}
+
+      {pendingDeleteSong && (
+        <ConfirmDialog
+          title="Remove song?"
+          message={`"${pendingDeleteSong.songTitle}" will be removed from this playlist.`}
+          confirmText="Remove"
+          cancelText="Cancel"
+          onCancel={() => setPendingDeleteSong(null)}
+          onConfirm={() => {
+            removeSongFromPlaylist(
+              playlist.name,
+              pendingDeleteSong.songId
+            );
+            setPendingDeleteSong(null);
+          }}
+        />
+      )}
+
     </div>
   );
 }

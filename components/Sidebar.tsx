@@ -2,6 +2,9 @@
 
 import Link from "next/link";
 import { usePlaylists } from "@/contexts/PlaylistContext";
+import { useState } from "react";
+import ConfirmDialog from "@/components/ConfirmDialog";
+import GenrePlaylistDialog from "@/components/GenrePlaylistDialog";
 
 const playlistItemClass = `
   group flex items-center justify-between
@@ -13,6 +16,8 @@ const playlistItemClass = `
 
 export default function Sidebar() {
   const { playlists, addPlaylist, removePlaylist } = usePlaylists();
+  const [showSmartDialog, setShowSmartDialog] = useState(false);
+
 
   const handleCreatePlaylist = () => {
     const name = prompt("Enter playlist name");
@@ -24,6 +29,9 @@ export default function Sidebar() {
     addPlaylist(trimmed);
   };
 
+  const [pendingDelete, setPendingDelete] = useState<string | null>(null);
+
+
 
   return (
     <aside className="h-full px-4 py-6 bg-black/70 border-r border-white/10 flex flex-col">
@@ -34,6 +42,7 @@ export default function Sidebar() {
 
       {/* Playlists 标题 + 新建 */}
       <div className="mt-3 flex items-center justify-between text-sm text-white/60 border-t border-white/10 ">
+
         <span>Playlists</span>
         <button
           onClick={handleCreatePlaylist}
@@ -48,6 +57,19 @@ export default function Sidebar() {
           +
         </button>
       </div>
+
+      <button
+          onClick={() => setShowSmartDialog(true)}
+          className="
+            mt-2 w-full text-sm py-2 rounded
+            bg-indigo-500/20 hover:bg-indigo-500
+            text-indigo-300 hover:text-black
+            hover: bg-indigo-400
+            transition
+          "
+        >
+          + Smart Playlist
+        </button>
 
       {/* 歌单列表 */}
       <div className="mt-2 space-y-1 text-sm">
@@ -68,8 +90,9 @@ export default function Sidebar() {
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  removePlaylist(playlist.name);
+                  setPendingDelete(playlist.name);
                 }}
+
                 className="
                   hidden group-hover:flex
                   items-center justify-center
@@ -92,6 +115,26 @@ export default function Sidebar() {
       <div className="mt-auto text-xs text-white/30 pt-4">
         © Igor Music
       </div>
-    </aside>
+
+        {pendingDelete && (
+          <ConfirmDialog
+            title="Delete playlist?"
+            message={`"${pendingDelete}" will be permanently removed.`}
+            onCancel={() => setPendingDelete(null)}
+            onConfirm={() => {
+              removePlaylist(pendingDelete);
+              setPendingDelete(null);
+            }}
+          />
+        )}
+
+        {showSmartDialog && (
+          <GenrePlaylistDialog
+            onClose={() => setShowSmartDialog(false)}
+          />
+        )}
+
+
+    </aside>    
   );
 }

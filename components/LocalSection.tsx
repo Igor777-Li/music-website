@@ -30,6 +30,7 @@ export default function LocalSection() {
 
   const visibleSongs = localSongs.slice(0, 5); // 👈 最多显示 5 首
 
+
   return (
     <section className="mt-12">
       <h2 className="text-xl font-semibold mb-4">Local Music</h2>
@@ -81,7 +82,7 @@ export default function LocalSection() {
             {/* 右侧：Play */}
             <button
               onClick={() =>
-                player.play({
+                player.playTrack({
                   id: song.id,
                   title: song.title,
                   artist: song.artist,

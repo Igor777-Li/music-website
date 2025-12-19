@@ -6,18 +6,21 @@ export default function HomePage() {
     <div className="p-6 space-y-10">
       <RecommendationRow
         title="Recommended for You"
-        keyword="pop"
+        source="personalized"
       />
 
       <RecommendationRow
         title="Indie Picks"
+        source="search"
         keyword="indie"
       />
 
       <RecommendationRow
         title="Rock Classics"
+        source="search"
         keyword="rock"
       />
+
 
       <LocalSection />
     </div>

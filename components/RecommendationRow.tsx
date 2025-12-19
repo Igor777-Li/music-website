@@ -7,10 +7,12 @@ import AddToPlaylistButton from "@/components/AddToPlaylistButton";
 
 type Props = {
   title: string;
-  keyword: string;
+  source: "search" | "personalized";
+  keyword?: string;
 };
 
-export default function RecommendationRow({ title, keyword }: Props) {
+
+export default function RecommendationRow({ title, keyword, source }: Props) {
   const [tracks, setTracks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -24,13 +26,24 @@ export default function RecommendationRow({ title, keyword }: Props) {
   useEffect(() => {
     async function fetchTracks() {
       try {
-        const res = await fetch(
-          `/api/auth/spotify/search?q=${keyword}&limit=12`
-        );
+        const url =
+          source === "personalized"
+            ? "/api/auth/spotify/recommendations"
+            : `/api/auth/spotify/search?q=${encodeURIComponent(keyword ?? "")}&limit=12`;
+
+        const res = await fetch(url);
+
         if (!res.ok) return;
 
         const data = await res.json();
-        setTracks(data.tracks?.items || []);
+
+        const items =
+          source === "personalized"
+            ? data.tracks ?? []
+            : data.tracks?.items ?? [];
+
+        setTracks(items);
+
       } catch (err) {
         console.error(err);
       } finally {
@@ -39,7 +52,7 @@ export default function RecommendationRow({ title, keyword }: Props) {
     }
 
     fetchTracks();
-  }, [keyword]);
+  }, [keyword, source]);
 
   const scrollLeft = () => {
     rowRef.current?.scrollBy({ left: -320, behavior: "smooth" });
@@ -89,6 +102,11 @@ export default function RecommendationRow({ title, keyword }: Props) {
             {tracks.map((track) => {
               const playable = Boolean(track.preview_url);
 
+              const coverUrl =
+                track.album?.images?.[1]?.url ||
+                track.album?.images?.[0]?.url ||
+                "/placeholder.png";
+
               return (
                 <div
                   key={track.id}
@@ -115,9 +133,17 @@ export default function RecommendationRow({ title, keyword }: Props) {
                   />
 
                   {/* 封面 */}
-                  <div className="aspect-square rounded-lg bg-indigo-500/30 mb-3 flex items-center justify-center text-2xl">
-                    🎵
-                  </div>
+                  <img
+                    src={coverUrl}
+                    alt={track.name}
+                    className="
+                      w-full aspect-square
+                      rounded-lg
+                      object-cover
+                      mb-3
+                    "
+                  />
+
 
                   {/* 歌名 */}
                   <div className="text-sm font-medium truncate">
@@ -133,7 +159,7 @@ export default function RecommendationRow({ title, keyword }: Props) {
                   <button
                     disabled={!playable}
                     onClick={() =>
-                      player.play({
+                      player.playTrack({
                         id: track.id,
                         title: track.name,
                         artist: track.artists[0].name,
