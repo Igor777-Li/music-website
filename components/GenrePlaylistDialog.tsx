@@ -69,11 +69,15 @@ export default function GenrePlaylistDialog({ onClose }: Props) {
       console.log("[SmartPlaylist] fetched track ids:", tracks.map((t:any)=>t.id).slice(0,5));
 
       // 2️⃣ 创建歌单
-      addPlaylist(playlistName);
+      const ok = await addPlaylist(playlistName);
+      if (!ok) {
+        onClose();
+        return;
+      }
 
       // 3️⃣ 把推荐歌曲加入歌单
-      tracks.forEach((track: any) => {
-        addSongToPlaylist(playlistName, {
+      for (const track of tracks) {
+        await addSongToPlaylist(playlistName, {
           id: track.id,
           title: track.name,
           artist: track.artists
@@ -81,7 +85,7 @@ export default function GenrePlaylistDialog({ onClose }: Props) {
             .join(", ") ?? "Unknown",
           previewUrl: track.preview_url,
         });
-      });
+      };
 
       onClose();
     } catch (err) {

@@ -25,7 +25,7 @@ type CtxType = {
   playlists: Playlist[];
   loading: boolean;
   error: string | null;
-  addPlaylist: (name: string) => Promise<void>;
+  addPlaylist: (name: string) => Promise<boolean>;
   removePlaylist: (name: string) => Promise<void>;
   addSongToPlaylist: (playlistName: string, song: Song) => Promise<void>;
   removeSongFromPlaylist: (playlistName: string, songId: string) => Promise<void>;
@@ -39,28 +39,6 @@ function getToken(): string {
     ?.split("=")[1];
   if (!token) throw new Error("未登录或 token 失效");
   return token;
-}
-
-/* ---------- 工具：统一 fetch 封装（保留，但不再调用） ---------- */
-async function api<T = unknown>(
-  endpoint: string,
-  options?: RequestInit
-): Promise<T> {
-  const base = "http://8.134.159.152:3355";
-  const res = await fetch(`${base}${endpoint}`, {
-    ...options,
-    headers: {
-      Authorization: `Bearer ${getToken()}`,
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
-    cache: "no-store",
-  });
-  if (!res.ok) {
-    const text = await res.text().catch(() => "Network error");
-    throw new Error(text || "请求失败");
-  }
-  return res.json();
 }
 
 /* ---------- Context ---------- */
@@ -81,12 +59,12 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
         headers: { Authorization: `Bearer ${getToken()}` },
         cache: "no-store",
       });
-      if (!res.ok) {
-        const txt = await res.text().catch(() => "Network error");
-        throw new Error(txt || "获取列表失败");
+      const data = await res.json();
+      if (data.ok) {
+        setPlaylists(data.list);
+      } else {
+        alert("获取列表失败：" + (data.msg || "未知错误"));
       }
-      const data: { ok: boolean; list: Playlist[] } = await res.json();
-      setPlaylists(data.list);
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -99,7 +77,7 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   /* ---------- 业务方法 ---------- */
-  const addPlaylist = async (name: string) => {
+  const addPlaylist = async (name: string): Promise<boolean> => {
     const res = await fetch(`${baseUrl}/playlist`, {
       method: "POST",
       headers: {
@@ -108,11 +86,14 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
       },
       body: JSON.stringify({ name }),
     });
-    if (!res.ok) {
-      const txt = await res.text().catch(() => "Network error");
-      throw new Error(txt || "创建歌单失败");
+    const data = await res.json();
+    if (data.ok) {
+      await fetchPlaylists();
+      return true;
+    } else {
+      alert("创建歌单失败：" + (data.msg || "未知错误"));
+      return false;
     }
-    await fetchPlaylists();
   };
 
   const removePlaylist = async (name: string) => {
@@ -122,13 +103,14 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${getToken()}`,
       },
-      body: JSON.stringify({ name }),   // 把歌单名字放在 body 里传递
+      body: JSON.stringify({ name }),
     });
-    if (!res.ok) {
-      const txt = await res.text().catch(() => 'Network error');
-      throw new Error(txt || '删除歌单失败');
+    const data = await res.json();
+    if (data.ok) {
+      await fetchPlaylists();
+    } else {
+      alert("删除歌单失败：" + (data.msg || "未知错误"));
     }
-    await fetchPlaylists();
   };
 
   const addSongToPlaylist = async (playlistName: string, song: Song) => {
@@ -140,14 +122,15 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
       },
       body: JSON.stringify({ playlistName, song }),
     });
-    if (!res.ok) {
-      const txt = await res.text().catch(() => "Network error");
-      throw new Error(txt || "收藏歌曲失败");
+    const data = await res.json();
+    if (data.ok) {
+      await fetchPlaylists();
+    } else {
+      alert("收藏歌曲失败：" + (data.msg || "未知错误"));
     }
-    await fetchPlaylists();
   };
 
- const removeSongFromPlaylist = async (
+  const removeSongFromPlaylist = async (
     playlistName: string,
     songId: string
   ) => {
@@ -157,13 +140,14 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${getToken()}`,
       },
-      body: JSON.stringify({ playlistName, songId }), // 两个参数都放 body
+      body: JSON.stringify({ playlistName, songId }),
     });
-    if (!res.ok) {
-      const txt = await res.text().catch(() => 'Network error');
-      throw new Error(txt || '移除歌曲失败');
+    const data = await res.json();
+    if (data.ok) {
+      await fetchPlaylists();
+    } else {
+      alert("移除歌曲失败：" + (data.msg || "未知错误"));
     }
-    await fetchPlaylists();
   };
 
   return (
