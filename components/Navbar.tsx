@@ -56,6 +56,9 @@ export default function Navbar() {
           <Link href="/search" className={linkClass("/search")}>
             Search
           </Link>
+          <Link href="/profile" className={linkClass("/profile")}>
+            Profile
+          </Link>
         </nav>
       </div>
 
@@ -65,7 +68,6 @@ export default function Navbar() {
             <a
               href="/auth/login"
               onClick={() => {
-                // 登录完成后刷新
                 setTimeout(() => {
                   router.refresh();
                 }, 1000);
@@ -84,9 +86,9 @@ export default function Navbar() {
                     router.refresh();
                   }, 300);
                 }}
-                className="px-3 py-2 rounded-md text-white/70 hover:text-white border border-white/20"
+                className="px-4 py-2 rounded-md bg-red-600 text-white font-medium hover:bg-red-700"
               >
-                Exit
+                Log out
               </a>
             </>
           )}
