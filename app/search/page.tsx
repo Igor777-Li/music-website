@@ -73,7 +73,7 @@ export default function SearchPage() {
             <button
                 disabled={!track.preview_url}
                 onClick={() =>
-                    player.play({
+                    player.playTrack({
                     id: track.id,
                     title: track.name,
                     artist: track.artists[0].name,

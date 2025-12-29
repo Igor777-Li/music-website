@@ -114,7 +114,7 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
   };
 
   const addSongToPlaylist = async (playlistName: string, song: Song) => {
-    const res = await fetch(`${baseUrl}/playlist/add`, {
+    const res = await fetch(`${baseUrl}/playlist/song`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -134,7 +134,7 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
     playlistName: string,
     songId: string
   ) => {
-    const res = await fetch(`${baseUrl}/playlist/songs`, {
+    const res = await fetch(`${baseUrl}/playlist/song`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
