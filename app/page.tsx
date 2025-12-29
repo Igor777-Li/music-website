@@ -6,7 +6,8 @@ export default function HomePage() {
     <div className="p-6 space-y-10">
       <RecommendationRow
         title="Recommended for You"
-        source="personalized"
+        source="search"
+        keyword="pop"
       />
 
       <RecommendationRow
