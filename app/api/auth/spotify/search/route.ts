@@ -6,6 +6,12 @@ export async function GET(req: Request) {
   console.log("cookies:", (await cookies()).getAll());
   const { searchParams } = new URL(req.url);
   const q = searchParams.get("q");
+  const limitParam = Number(searchParams.get("limit") ?? "12");
+  const offsetParam = Number(searchParams.get("offset") ?? "0");
+  const limit = Number.isNaN(limitParam)
+    ? 12
+    : Math.min(Math.max(limitParam, 1), 50);
+  const offset = Number.isNaN(offsetParam) || offsetParam < 0 ? 0 : offsetParam;
 
   if (!q) {
     return NextResponse.json(
@@ -25,7 +31,7 @@ export async function GET(req: Request) {
   }
 
   const spotifyRes = await fetch(
-    `https://api.spotify.com/v1/search?type=track&limit=12&q=${encodeURIComponent(
+    `https://api.spotify.com/v1/search?type=track&limit=${limit}&offset=${offset}&q=${encodeURIComponent(
       q
     )}`,
     {

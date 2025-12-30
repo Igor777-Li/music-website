@@ -11,6 +11,7 @@ type Props = {
   keyword?: string;
 };
 
+const RECOMMENDATION_LIMIT = 12;
 
 export default function RecommendationRow({ title, keyword, source }: Props) {
   const [tracks, setTracks] = useState<any[]>([]);
@@ -25,24 +26,49 @@ export default function RecommendationRow({ title, keyword, source }: Props) {
 
   useEffect(() => {
     async function fetchTracks() {
+      setLoading(true);
       try {
-        const url =
-          source === "personalized"
-            ? "/api/auth/spotify/recommendations"
-            : `/api/auth/spotify/search?q=${encodeURIComponent(keyword ?? "")}&limit=12`;
+        if (source === "personalized") {
+          const res = await fetch("/api/auth/spotify/recommendations");
 
-        const res = await fetch(url);
+          if (!res.ok) return;
+
+          const data = await res.json();
+          setTracks(data.tracks ?? []);
+          return;
+        }
+
+        if (!keyword) {
+          setTracks([]);
+          return;
+        }
+
+        const baseQuery = `/api/auth/spotify/search?q=${encodeURIComponent(
+          keyword
+        )}`;
+        const metaRes = await fetch(`${baseQuery}&limit=1`);
+
+        if (!metaRes.ok) return;
+
+        const metaData = await metaRes.json();
+        const total = metaData.tracks?.total ?? 0;
+        const maxOffset = Math.max(
+          0,
+          Math.min(total - RECOMMENDATION_LIMIT, 1000 - RECOMMENDATION_LIMIT)
+        );
+        const offset =
+          maxOffset > 0
+            ? Math.floor(Math.random() * (maxOffset + 1))
+            : 0;
+
+        const res = await fetch(
+          `${baseQuery}&limit=${RECOMMENDATION_LIMIT}&offset=${offset}`
+        );
 
         if (!res.ok) return;
 
         const data = await res.json();
-
-        const items =
-          source === "personalized"
-            ? data.tracks ?? []
-            : data.tracks?.items ?? [];
-
-        setTracks(items);
+        setTracks(data.tracks?.items ?? []);
 
       } catch (err) {
         console.error(err);

@@ -88,6 +88,11 @@ export default function AppShell({
 
       {/* 右侧 Queue（按按钮才显示） */}
       {showQueuePanel && <QueuePanel />}
+
+      <div
+        id="search-pagination-root"
+        className="pointer-events-none fixed bottom-24 left-0 right-0 z-30 flex justify-center"
+      />
     </div>
 
   );
