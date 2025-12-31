@@ -119,6 +119,9 @@ export default function LoginPage() {
           还没账号？
           <a href="/auth/register" className="text-blue-600">去注册</a>
         </p>
+        <a href="/auth/forget-password" className="text-sm text-blue-600">
+            忘记密码？
+        </a>
       </div>
     </div>
   );

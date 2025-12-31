@@ -20,6 +20,29 @@ export default function EditProfilePage() {
   });
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  /* ---------- 状态：增加校验相关 ---------- */
+  const [userTip, setUserTip] = useState('');
+  const [userErr, setUserErr] = useState('');
+
+  /* ---------- 失焦 / 聚焦回调 ---------- */
+  const onUserFocus = () => setUserTip('4-20 位字符，不得由纯数字组成');
+  const onUserBlur = () => {
+    setUserTip('');
+    // 失焦时立即跑一遍校验
+    if (!form.username.trim()) {
+      setUserErr('用户名不能为空');
+    } else if (!/^(?!\d+$).{4,20}$/.test(form.username)) {
+      setUserErr('用户名不符合要求');
+    } else {
+      setUserErr('');
+    }
+  };
+
+  /* ---------- 输入时清除错误 ---------- */
+  const onUserChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm({ ...form, username: e.target.value });
+    if (userErr) setUserErr('');   // 用户重新输入时清掉红字
+  };
 
   /* ---------- 初始回填 ---------- */
   useEffect(() => {
@@ -72,8 +95,13 @@ export default function EditProfilePage() {
 
   /* ---------- 保存资料 ---------- */
   const handleSave = async () => {
-    if (!form.username.trim()) return alert("用户名不能为空");
-
+    if (!form.username.trim()) {
+      return;
+    }
+    if (!/^(?!\d+$).{4,20}$/.test(form.username)) {
+      return;
+    }
+    
     const token = document.cookie
       .split("; ")
       .find((r) => r.startsWith("spotify_access_token="))
@@ -130,11 +158,15 @@ export default function EditProfilePage() {
         {/* 用户名 */}
         <div>
           <label className="block text-sm mb-1">用户名</label>
-          <input
-            className="w-full border border-white/20 bg-white/5 px-3 py-2 rounded"
-            value={form.username}
-            onChange={(e) => setForm({ ...form, username: e.target.value })}
-          />
+            <input
+              className="w-full border border-white/20 bg-white/5 px-3 py-2 rounded"
+              value={form.username}
+              onChange={onUserChange}
+              onFocus={onUserFocus}
+              onBlur={onUserBlur}
+            />
+            {userTip && <p className="text-xs text-gray-400 mt-1">{userTip}</p>}
+            {userErr && <p className="text-xs text-red-500 mt-1">{userErr}</p>}
         </div>
 
         {/* 邮箱 */}
